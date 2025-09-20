@@ -9,6 +9,8 @@
 
 Built on the trusted [ccusage CLI tool](https://github.com/evanmschultz/ccusage), this ultra-lightweight **181-line Swift app** displays your **Claude usage percentage** and **reset countdown** without cluttering your workflow.
 
+![CCUsage Monitor Menu](docs/ccusage-menu.png)
+
 ![CCUsage Monitor Demo](https://img.shields.io/badge/Menu%20Bar%20Display-75%25%20%7C%202h%2015m-success?style=for-the-badge&logo=apple)
 
 ## 🚀 Claude Usage Monitoring Made Simple

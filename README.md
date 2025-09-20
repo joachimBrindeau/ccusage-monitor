@@ -7,7 +7,7 @@
 
 > **Monitor your Claude API usage and reset time directly in your macOS menu bar**
 
-Built on the trusted [ccusage CLI tool](https://github.com/evanmschultz/ccusage), this ultra-lightweight **46-line Swift app** displays your **Claude usage percentage** and **reset countdown** without cluttering your workflow.
+Built on the trusted [ccusage CLI tool](https://github.com/evanmschultz/ccusage), this ultra-lightweight **181-line Swift app** displays your **Claude usage percentage** and **reset countdown** without cluttering your workflow.
 
 ![CCUsage Monitor Demo](https://img.shields.io/badge/Menu%20Bar%20Display-75%25%20%7C%202h%2015m-success?style=for-the-badge&logo=apple)
 
@@ -16,12 +16,13 @@ Built on the trusted [ccusage CLI tool](https://github.com/evanmschultz/ccusage)
 Transform your **ccusage** terminal data for your **current active billing block** into a persistent **menu bar indicator**:
 
 - ✅ **Configurable display metrics** - choose what to show in menu bar
-- 📊 **Available metrics**: % used, % left, time left, tokens spent, tokens left, money spent
+- 📊 **Available metrics**: percentage, time, tokens, money (with used/left toggle)
+- 🎛️ **Smart toggles** - money option auto-disables when inappropriate
 - ⏰ **Current block tracking** - monitors your active Claude billing period
 - 🔄 **Auto-refresh every 30 seconds** - always current data
 - ⌨️ **Right-click menu** to toggle display options and refresh
 - 🏃‍♂️ **Auto-start on login** - enabled by default
-- 🪶 **Ultra-minimal** - just 46 lines of Swift code
+- 🪶 **Ultra-minimal** - just 181 lines of Swift code
 
 ## 📦 Installation - Claude API Usage Monitor Setup
 
@@ -93,15 +94,14 @@ launchctl unload ~/Library/LaunchAgents/com.ccusage.monitor.plist   # Disable au
 | Action | Shortcut | Function |
 |--------|----------|----------|
 | **Refresh Claude Data** | `⌘R` | Instantly update current block stats |
-| **Show % Used** | ✓/✗ | Toggle percentage of current block used |
-| **Show % Left** | ✓/✗ | Toggle percentage remaining in current block |
-| **Show Time Left** | ✓/✗ | Toggle time until current block resets |
-| **Show Tokens Spent** | ✓/✗ | Toggle tokens consumed in current block |
-| **Show Tokens Left** | ✓/✗ | Toggle tokens remaining in current block |
-| **Show Money Spent** | ✓/✗ | Toggle cost of current block usage |
+| **Show Percentage** | ✓/✗ | Toggle percentage display (used or left) |
+| **Show Time** | ✓/✗ | Toggle time display (elapsed or remaining) |
+| **Show Tokens** | ✓/✗ | Toggle token display (used or left) |
+| **Show Money** | ✓/✗ | Toggle cost display (used only) |
+| **Toggle Used/Left** | - | Switch between used vs remaining metrics |
 | **Quit Monitor** | `⌘Q` | Stop Claude usage tracking |
 
-**Default display**: `75% | 2h 15m` (% used and time left)
+**Default display**: `92% | 3h 45m` (percentage used and time elapsed)
 
 ## 💡 Claude API Usage Monitoring Benefits
 
@@ -137,11 +137,11 @@ launchctl unload ~/Library/LaunchAgents/com.ccusage.monitor.plist   # Disable au
 
 ### Code Structure
 ```swift
-// Ultra-minimal 46-line implementation
+// Ultra-minimal 181-line implementation
 class AppDelegate: NSObject, NSApplicationDelegate {
-    var s: NSStatusItem!  // Status bar item
-    func u() { /* Update usage data */ }
-    func q() { /* Quit application */ }
+    private var statusItem: NSStatusItem!
+    private var options = ["percentage": true, "timeLeft": true, "tokens": false, "money": false]
+    private var showUsed = true
 }
 ```
 

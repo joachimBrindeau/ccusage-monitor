@@ -1,12 +1,5 @@
 import Cocoa
 
-struct DisplayOption {
-    let key: String
-    let title: String
-    let action: Selector
-    var enabled: Bool
-}
-
 struct UsageData {
     let usedPct: Int
     let leftPct: Int
@@ -22,12 +15,7 @@ struct UsageData {
 class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private var currentUsage: UsageData?
-    private var options: [DisplayOption] = [
-        DisplayOption(key: "percentage", title: "Show Percentage", action: #selector(toggleOption), enabled: true),
-        DisplayOption(key: "timeLeft", title: "Show Time", action: #selector(toggleOption), enabled: true),
-        DisplayOption(key: "tokens", title: "Show Tokens", action: #selector(toggleOption), enabled: false),
-        DisplayOption(key: "money", title: "Show Money", action: #selector(toggleOption), enabled: false)
-    ]
+    private var options = ["percentage": true, "timeLeft": true, "tokens": false, "money": false]
     private var showUsed = true
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -51,17 +39,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(title: "Refresh", action: #selector(updateUsage), keyEquivalent: "r"))
         menu.addItem(.separator())
 
-        for (index, option) in options.enumerated() {
-            let item = NSMenuItem(title: option.title, action: #selector(toggleOption(_:)), keyEquivalent: "")
-            item.state = option.enabled ? .on : .off
+        for (index, (key, enabled)) in options.enumerated() {
+            let titles = ["percentage": "Show Percentage", "timeLeft": "Show Time", "tokens": "Show Tokens", "money": "Show Money"]
+            let item = NSMenuItem(title: titles[key]!, action: #selector(toggleOption(_:)), keyEquivalent: "")
+            item.state = enabled ? .on : .off
             item.tag = index
-
-            if option.key == "money" && !showUsed {
-                item.isEnabled = false
-                item.action = nil
-                item.state = .off
-            }
-
+            if key == "money" && !showUsed { item.isEnabled = false; item.action = nil; item.state = .off }
             menu.addItem(item)
         }
 
@@ -142,32 +125,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func buildDisplayString(from usage: UsageData) -> [String] {
         var display: [String] = []
 
-        for option in options where option.enabled {
-            switch option.key {
-            case "percentage":
-                if showUsed {
-                    display.append("\(usage.usedPct)%")
-                } else {
-                    display.append("\(usage.leftPct)%")
-                }
-            case "timeLeft":
-                if showUsed {
-                    display.append("\(usage.elapsedMinutes/60)h \(usage.elapsedMinutes%60)m")
-                } else {
-                    display.append("\(usage.remainingMinutes/60)h \(usage.remainingMinutes%60)m")
-                }
-            case "tokens":
-                if showUsed {
-                    display.append("\(formatTokens(usage.totalTokens))t")
-                } else {
-                    display.append("\(formatTokens(usage.tokensLeft))t")
-                }
-            case "money":
-                if showUsed {
-                    display.append("$\(String(format: "%.2f", usage.costUsed))")
-                } else {
-                    display.append("$\(String(format: "%.2f", usage.costLeft))")
-                }
+        for (key, enabled) in options where enabled {
+            switch key {
+            case "percentage": display.append("\(showUsed ? usage.usedPct : usage.leftPct)%")
+            case "timeLeft": display.append("\((showUsed ? usage.elapsedMinutes : usage.remainingMinutes)/60)h \((showUsed ? usage.elapsedMinutes : usage.remainingMinutes)%60)m")
+            case "tokens": display.append("\(formatTokens(showUsed ? usage.totalTokens : usage.tokensLeft))t")
+            case "money": if showUsed { display.append("$\(String(format: "%.2f", usage.costUsed))") }
             default: break
             }
         }
@@ -186,24 +149,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func toggleOption(_ sender: NSMenuItem) {
-        let option = options[sender.tag]
-
-        if option.key == "money" && !showUsed {
-            return
-        }
-
-        options[sender.tag].enabled.toggle()
+        let key = Array(options.keys)[sender.tag]
+        if key == "money" && !showUsed { return }
+        options[key]!.toggle()
         refreshUI()
     }
 
     @objc private func toggleUsedLeft() {
         showUsed.toggle()
 
-        if !showUsed {
-            if let moneyIndex = options.firstIndex(where: { $0.key == "money" }) {
-                options[moneyIndex].enabled = false
-            }
-        }
+        if !showUsed { options["money"] = false }
 
         refreshUI()
     }

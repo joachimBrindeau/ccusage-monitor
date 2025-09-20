@@ -31,37 +31,37 @@ Transform your **ccusage** terminal data into a persistent **menu bar indicator*
 brew tap joachimbrindeau/ccusage-monitor
 brew install ccusage-monitor
 
-# Launch the Claude usage monitor
+# Launch the Claude usage monitor (auto-start enabled by default)
 ccusage-monitor
-
-# Optional: Setup automatic startup on login
-ccusage-monitor-setup-startup
 ```
 
-### 📋 Manual Installation
-
-<details>
-<summary>Click to expand manual installation steps</summary>
+### 📋 Manual Installation (Auto-start included)
 
 ```bash
-# 1. Install ccusage CLI dependency
-npm install -g ccusage
-
-# 2. Clone and install CCUsage Monitor
+# One-command install with automatic startup
 git clone https://github.com/joachimBrindeau/ccusage-monitor.git
 cd ccusage-monitor
-./install.sh
-
-# 3. Optional: Setup automatic startup
-./setup-startup.sh
+./install
 ```
+
+<details>
+<summary>What the installer does</summary>
+
+1. **Checks dependencies** - Swift, Node.js, ccusage
+2. **Installs ccusage** if missing (`npm install -g ccusage`)
+3. **Tests ccusage connection** to ensure Claude API access
+4. **Installs monitor** to `~/.local/share/ccusage-monitor/`
+5. **Creates launcher** at `~/.local/bin/ccusage-monitor`
+6. **Sets up auto-start** (Launch Agent) - enabled by default
+7. **Starts immediately** in menu bar
+
 </details>
 
-### ⚡ Quick Test Run
+### ⚡ Direct Run (Development)
 
 ```bash
-# Just run it directly (requires ccusage installed)
-swift main.swift
+# Run directly from source (requires ccusage installed)
+swift bin/main.swift
 ```
 
 ## 🔧 How Claude Usage Monitoring Works
@@ -75,15 +75,16 @@ swift main.swift
 
 ## ⚙️ CCUsage Monitor Configuration
 
-### 🚀 Auto-Start Setup for Claude Monitoring
+### 🚀 Auto-Start Control (Enabled by Default)
 
 ```bash
-# Enable automatic Claude usage monitoring on login
-ccusage-monitor-setup-startup
+# Monitor commands
+ccusage-monitor                    # Start monitor
+pkill -f 'swift main.swift'       # Stop monitor
 
-# Manual control commands
-launchctl load ~/Library/LaunchAgents/com.ccusage.monitor.plist   # Start
-launchctl unload ~/Library/LaunchAgents/com.ccusage.monitor.plist # Stop
+# Auto-start control
+launchctl load ~/Library/LaunchAgents/com.ccusage.monitor.plist     # Enable auto-start
+launchctl unload ~/Library/LaunchAgents/com.ccusage.monitor.plist   # Disable auto-start
 ```
 
 ### 🎯 Menu Bar Controls for Claude Usage

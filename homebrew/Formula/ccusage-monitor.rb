@@ -16,7 +16,7 @@ class CcusageMonitor < Formula
     # Install Swift source to lib directory
     lib.mkpath
     (lib/"ccusage-monitor").mkpath
-    (lib/"ccusage-monitor").install "main.swift"
+    (lib/"ccusage-monitor").install "bin/main.swift"
 
     # Create launcher script
     (bin/"ccusage-monitor").write <<~EOS
@@ -69,14 +69,17 @@ EOF
 
   def caveats
     <<~EOS
-      To start CCUsage Monitor:
-        ccusage-monitor
+      CCUsage Monitor has been installed!
 
-      To setup automatic startup at login:
-        ccusage-monitor-setup-startup
+      To start (auto-start will be enabled automatically):
+        ccusage-monitor
 
       To stop the monitor:
         pkill -f "swift main.swift"
+
+      Auto-start control:
+        launchctl load ~/Library/LaunchAgents/com.ccusage.monitor.plist    # Enable
+        launchctl unload ~/Library/LaunchAgents/com.ccusage.monitor.plist  # Disable
     EOS
   end
 

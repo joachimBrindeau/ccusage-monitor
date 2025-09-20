@@ -11,6 +11,7 @@ struct UsageData {
     let usedPct: Int
     let leftPct: Int
     let remainingMinutes: Int
+    let elapsedMinutes: Int
     let totalTokens: Int
     let tokensLeft: Int
     let costUsed: Double
@@ -114,11 +115,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let leftPct = 100 - usedPct
         let tokensLeft = projectedTotal - totalTokens
         let costLeft = projectedCost - costUsed
+        let elapsedMinutes = (5 * 60) - remainingMinutes
 
         return UsageData(
             usedPct: usedPct,
             leftPct: leftPct,
             remainingMinutes: remainingMinutes,
+            elapsedMinutes: elapsedMinutes,
             totalTokens: totalTokens,
             tokensLeft: tokensLeft,
             costUsed: costUsed,
@@ -147,7 +150,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 } else {
                     display.append("\(usage.leftPct)%")
                 }
-            case "timeLeft": display.append("\(usage.remainingMinutes/60)h \(usage.remainingMinutes%60)m")
+            case "timeLeft":
+                if showUsed {
+                    display.append("\(usage.elapsedMinutes/60)h \(usage.elapsedMinutes%60)m")
+                } else {
+                    display.append("\(usage.remainingMinutes/60)h \(usage.remainingMinutes%60)m")
+                }
             case "tokens":
                 if showUsed {
                     display.append("\(formatTokens(usage.totalTokens))t")

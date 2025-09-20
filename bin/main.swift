@@ -13,7 +13,8 @@ struct UsageData {
     let remainingMinutes: Int
     let totalTokens: Int
     let tokensLeft: Int
-    let costCents: Int
+    let costUsed: Double
+    let costLeft: Double
     let resetTime: String
 }
 
@@ -22,7 +23,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var currentUsage: UsageData?
     private var options: [DisplayOption] = [
         DisplayOption(key: "percentage", title: "Show Percentage", action: #selector(toggleOption), enabled: true),
-        DisplayOption(key: "timeLeft", title: "Show Time Left", action: #selector(toggleOption), enabled: true),
+        DisplayOption(key: "timeLeft", title: "Show Time", action: #selector(toggleOption), enabled: true),
         DisplayOption(key: "tokens", title: "Show Tokens", action: #selector(toggleOption), enabled: false),
         DisplayOption(key: "money", title: "Show Money", action: #selector(toggleOption), enabled: false)
     ]
@@ -53,6 +54,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let item = NSMenuItem(title: option.title, action: #selector(toggleOption(_:)), keyEquivalent: "")
             item.state = option.enabled ? .on : .off
             item.tag = index
+
+            if option.key == "money" && !showUsed {
+                item.isEnabled = false
+                item.action = nil
+                item.state = .off
+            }
+
             menu.addItem(item)
         }
 
@@ -99,13 +107,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let projection = block["projection"] as? [String: Any]
         let projectedTotal = projection?["totalTokens"] as? Int ?? totalTokens
         let remainingMinutes = projection?["remainingMinutes"] as? Int ?? 0
-        let costCents = block["costCents"] as? Int ?? 0
+        let costUsed = block["costUSD"] as? Double ?? 0.0
+        let projectedCost = projection?["totalCost"] as? Double ?? 0.0
 
         let usedPct = totalTokens * 100 / projectedTotal
         let leftPct = 100 - usedPct
         let tokensLeft = projectedTotal - totalTokens
-
-        let resetTime = formatResetTime(remainingMinutes: remainingMinutes)
+        let costLeft = projectedCost - costUsed
 
         return UsageData(
             usedPct: usedPct,
@@ -113,8 +121,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             remainingMinutes: remainingMinutes,
             totalTokens: totalTokens,
             tokensLeft: tokensLeft,
-            costCents: costCents,
-            resetTime: resetTime
+            costUsed: costUsed,
+            costLeft: costLeft,
+            resetTime: formatResetTime(remainingMinutes: remainingMinutes)
         )
     }
 
@@ -147,10 +156,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             case "money":
                 if showUsed {
-                    display.append("$\(String(format: "%.2f", Double(usage.costCents)/100))")
+                    display.append("$\(String(format: "%.2f", usage.costUsed))")
                 } else {
-                    let leftCents = Int(Double(usage.costCents) * Double(usage.tokensLeft) / Double(usage.totalTokens))
-                    display.append("$\(String(format: "%.2f", Double(leftCents)/100))")
+                    display.append("$\(String(format: "%.2f", usage.costLeft))")
                 }
             default: break
             }
@@ -170,24 +178,33 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func toggleOption(_ sender: NSMenuItem) {
-        options[sender.tag].enabled.toggle()
-        buildMenu()
+        let option = options[sender.tag]
 
-        DispatchQueue.main.async {
-            self.statusItem.button?.title = "..."
+        if option.key == "money" && !showUsed {
+            return
         }
 
-        updateUsage()
+        options[sender.tag].enabled.toggle()
+        refreshUI()
     }
 
     @objc private func toggleUsedLeft() {
         showUsed.toggle()
-        buildMenu()
 
+        if !showUsed {
+            if let moneyIndex = options.firstIndex(where: { $0.key == "money" }) {
+                options[moneyIndex].enabled = false
+            }
+        }
+
+        refreshUI()
+    }
+
+    private func refreshUI() {
+        buildMenu()
         DispatchQueue.main.async {
             self.statusItem.button?.title = "..."
         }
-
         updateUsage()
     }
 

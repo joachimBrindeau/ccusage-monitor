@@ -68,7 +68,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func updateUsage() {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-        process.arguments = ["npx", "ccusage", "blocks", "--active", "--token-limit", "max", "--json"]
+        process.arguments = ["npx", "ccusage", "blocks", "--active", "--json"]
 
         let pipe = Pipe()
         process.standardOutput = pipe
@@ -90,6 +90,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         DispatchQueue.main.async {
             self.currentUsage = usage
             self.statusItem.button?.title = display.isEmpty ? "No metrics" : display.joined(separator: " | ")
+            self.buildMenu()
         }
     }
 
@@ -100,13 +101,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let remainingMinutes = projection?["remainingMinutes"] as? Int ?? 0
         let costCents = block["costCents"] as? Int ?? 0
 
-        let tokenLimitStatus = block["tokenLimitStatus"] as? [String: Any]
-        let limit = tokenLimitStatus?["limit"] as? Int ?? 254479896
-        let percentUsed = tokenLimitStatus?["percentUsed"] as? Double ?? Double(totalTokens * 100) / Double(limit)
-
-        let usedPct = Int(min(100, percentUsed))
-        let leftPct = max(0, 100 - usedPct)
-        let tokensLeft = max(0, limit - totalTokens)
+        let usedPct = totalTokens * 100 / projectedTotal
+        let leftPct = 100 - usedPct
+        let tokensLeft = projectedTotal - totalTokens
 
         let resetTime = formatResetTime(remainingMinutes: remainingMinutes)
 

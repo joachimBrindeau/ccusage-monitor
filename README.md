@@ -1,137 +1,250 @@
-# CCUsage Monitor
+# CCUsage Monitor - Claude API Usage Tracker for macOS Menu Bar
 
-**A simple macOS menu bar app that shows your Claude API usage at a glance.**
+[![GitHub release](https://img.shields.io/github/v/release/joachimBrindeau/ccusage-monitor)](https://github.com/joachimBrindeau/ccusage-monitor/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Swift](https://img.shields.io/badge/Swift-5.5+-orange.svg)](https://swift.org)
+[![macOS](https://img.shields.io/badge/macOS-10.15+-blue.svg)](https://www.apple.com/macos)
 
-Built on top of the popular [ccusage CLI tool](https://github.com/evanmschultz/ccusage), this lightweight app adds a **46-line Swift menu bar indicator** so you can monitor your **Claude usage** and **reset time** without opening a terminal.
+> **Monitor your Claude API usage and reset time directly in your macOS menu bar**
 
-![Menu Bar Preview](https://img.shields.io/badge/Menu%20Bar-75%25%20%7C%202h%2015m-blue)
+Built on the trusted [ccusage CLI tool](https://github.com/evanmschultz/ccusage), this ultra-lightweight **46-line Swift app** displays your **Claude usage percentage** and **reset countdown** without cluttering your workflow.
 
-## What It Does
+![CCUsage Monitor Demo](https://img.shields.io/badge/Menu%20Bar%20Display-75%25%20%7C%202h%2015m-success?style=for-the-badge&logo=apple)
 
-CCUsage Monitor takes the **ccusage** command-line data and displays it in your macOS menu bar:
+## 🚀 Claude Usage Monitoring Made Simple
 
-- Shows **usage percentage** and **time until reset** (e.g., "75% | 2h 15m")
-- Updates every 30 seconds automatically
-- Right-click to refresh manually or quit
-- Runs on startup (optional)
+Transform your **ccusage** terminal data into a persistent **menu bar indicator**:
 
-**That's it.** No complex features, no bloat - just your Claude usage always visible.
+- ✅ **Real-time Claude API usage** percentage display
+- ⏰ **Claude reset time countdown** (hours and minutes remaining)
+- 🔄 **Auto-refresh every 30 seconds** - always current data
+- ⌨️ **Manual refresh** with `⌘R` hotkey
+- 🏃‍♂️ **Optional startup launch** - monitor from login
+- 🪶 **Ultra-minimal** - just 46 lines of Swift code
 
-## Quick Start
+## 📦 Installation - Claude API Usage Monitor Setup
 
-### Option 1: Homebrew (Easiest)
+### 🍺 Homebrew Installation (Recommended)
 
 ```bash
-# Install both ccusage and the menu bar monitor
+# One-command install for both ccusage and menu bar monitor
 brew tap joachimbrindeau/ccusage-monitor
 brew install ccusage-monitor
+
+# Launch the Claude usage monitor
 ccusage-monitor
-```
 
-### Option 2: Manual Install
-
-```bash
-# First install ccusage if you don't have it
-npm install -g ccusage
-
-# Then clone and run the monitor
-git clone https://github.com/joachimBrindeau/ccusage-monitor.git
-cd ccusage-monitor
-./install.sh
-```
-
-## How It Works
-
-1. **ccusage** fetches your Claude API usage data
-2. **CCUsage Monitor** parses that JSON and displays it in your menu bar
-3. Updates happen automatically every 30 seconds
-
-The app simply runs `npx ccusage blocks --active --json` and shows the results visually.
-
-## Features
-
-- **Real-time Claude API usage tracking**
-- **Claude reset time countdown**
-- **Ultra-lightweight** - just 46 lines of Swift code
-- **ccusage integration** - built on the trusted ccusage CLI
-- **Auto-startup** option for continuous monitoring
-- **Manual refresh** with ⌘R hotkey
-
-## Setup Auto-Start (Optional)
-
-To have the monitor start automatically when you login:
-
-```bash
-# After installation, run this once
+# Optional: Setup automatic startup on login
 ccusage-monitor-setup-startup
 ```
 
-## Requirements
+### 📋 Manual Installation
 
-- **macOS 10.15+** (Catalina or later)
-- **Node.js** (for ccusage)
-- **Swift** (comes with Xcode Command Line Tools)
+<details>
+<summary>Click to expand manual installation steps</summary>
 
-## Why Use This?
+```bash
+# 1. Install ccusage CLI dependency
+npm install -g ccusage
 
-If you're already using **ccusage** to track your Claude API usage, this simply adds a **visual indicator** so you don't have to run terminal commands constantly.
+# 2. Clone and install CCUsage Monitor
+git clone https://github.com/joachimBrindeau/ccusage-monitor.git
+cd ccusage-monitor
+./install.sh
 
-Perfect for:
-- **Developers** building with Claude API
-- **Researchers** managing token budgets
-- **Content creators** tracking Claude Pro limits
-- **Teams** monitoring Claude usage costs
-
-## Technical Details
-
-- **46 lines of Swift** - ultra-minimal implementation
-- **No dependencies** except ccusage (which you probably already have)
-- **JSON parsing** of ccusage output
-- **Background updates** every 30 seconds
-- **Launch Agent** support for auto-start
-
-## Troubleshooting
-
-**"No data" showing?**
-- Make sure `ccusage` is installed: `npm install -g ccusage`
-- Verify ccusage works: `npx ccusage blocks --active --json`
-
-**App not starting?**
-- Check Swift is available: `swift --version`
-- Try manual start: `swift main.swift`
-
-## Keywords
-
-**ccusage**, **Claude API usage**, **Claude reset time**, **Claude token limits**, **Claude usage tracking**, **Claude API monitor**, **macOS menu bar**, **Claude billing**, **Anthropic API**, **Claude Pro limits**, **token consumption**, **usage dashboard**, **API monitoring**, **Claude analytics**
-
-## Usage
-
-- **Menu bar display**: Shows percentage used and time remaining (e.g., "75% | 2h 15m")
-- **Right-click menu**:
-  - *Refresh* (⌘R): Manually update usage data
-  - *Quit* (⌘Q): Exit the application
-
-## Project Structure
-
+# 3. Optional: Setup automatic startup
+./setup-startup.sh
 ```
-ccusage-monitor/
-└── main.swift    # Complete application (52 lines)
+</details>
+
+### ⚡ Quick Test Run
+
+```bash
+# Just run it directly (requires ccusage installed)
+swift main.swift
 ```
 
-## Technical Details
+## 🔧 How Claude Usage Monitoring Works
 
-Built with modern Swift patterns:
-- Clean AppDelegate architecture
-- Efficient JSON parsing
-- Background process execution
-- Responsive UI updates
+| Step | Process | Description |
+|------|---------|-------------|
+| 1️⃣ | **CCUsage CLI** | Fetches your Claude API usage data from Anthropic |
+| 2️⃣ | **JSON Parsing** | Monitor parses `ccusage blocks --active --json` output |
+| 3️⃣ | **Menu Bar Display** | Shows "75% \| 2h 15m" format in your status bar |
+| 4️⃣ | **Auto-Refresh** | Updates every 30 seconds automatically |
 
-The monitor calls `npx ccusage blocks --active --json` to fetch usage data and parses the response for display.
+## ⚙️ CCUsage Monitor Configuration
 
-## Contributing
+### 🚀 Auto-Start Setup for Claude Monitoring
 
-Pull requests welcome. Please ensure code maintains the minimal, clean architecture.
+```bash
+# Enable automatic Claude usage monitoring on login
+ccusage-monitor-setup-startup
 
-## License
+# Manual control commands
+launchctl load ~/Library/LaunchAgents/com.ccusage.monitor.plist   # Start
+launchctl unload ~/Library/LaunchAgents/com.ccusage.monitor.plist # Stop
+```
 
-MIT License - see LICENSE file for details.
+### 🎯 Menu Bar Controls for Claude Usage
+
+| Action | Shortcut | Function |
+|--------|----------|----------|
+| **Refresh Claude Data** | `⌘R` | Instantly update usage stats |
+| **Quit Monitor** | `⌘Q` | Stop Claude usage tracking |
+| **Right-click** | Mouse | Access full menu options |
+
+## 💡 Claude API Usage Monitoring Benefits
+
+### 👨‍💻 For Developers Using Claude API
+- ✅ **Prevent API limit exceeded errors** during development
+- ✅ **Track token consumption** in real-time while coding
+- ✅ **Monitor Claude billing cycles** for budget management
+- ✅ **Optimize prompt efficiency** based on usage patterns
+
+### 🔬 For Researchers and Content Creators
+- ✅ **Claude Pro subscription monitoring** - track monthly limits
+- ✅ **Research budget management** - never exceed allocations
+- ✅ **Content planning** based on remaining Claude capacity
+- ✅ **Team coordination** for shared Claude usage
+
+### 🏢 For Enterprise Teams Using Claude
+- ✅ **Claude Enterprise usage tracking** across team members
+- ✅ **Cost optimization** for Claude API consumption
+- ✅ **Workflow planning** around Claude reset cycles
+- ✅ **Resource allocation** based on real usage data
+
+## 🛠️ Technical Implementation
+
+<details>
+<summary>Technical details for developers</summary>
+
+### Architecture
+- **Language**: Swift 5.5+ with Cocoa framework
+- **Dependencies**: ccusage CLI tool only
+- **Process**: Spawns `npx ccusage` subprocess every 30 seconds
+- **UI**: Native macOS status bar item (NSStatusItem)
+- **Startup**: macOS Launch Agent (plist-based)
+
+### Code Structure
+```swift
+// Ultra-minimal 46-line implementation
+class AppDelegate: NSObject, NSApplicationDelegate {
+    var s: NSStatusItem!  // Status bar item
+    func u() { /* Update usage data */ }
+    func q() { /* Quit application */ }
+}
+```
+
+### Data Flow
+1. `Process()` executes `npx ccusage blocks --active --json`
+2. `JSONSerialization` parses response
+3. Extract `totalTokens`, `projection.totalTokens`, `projection.remainingMinutes`
+4. Calculate percentage and format time display
+5. Update `NSStatusItem.button.title`
+
+</details>
+
+## 📋 System Requirements for Claude Monitoring
+
+| Requirement | Version | Purpose |
+|-------------|---------|---------|
+| **macOS** | 10.15+ (Catalina) | Native status bar support |
+| **Node.js** | Any recent version | Powers ccusage CLI tool |
+| **Swift** | 5.5+ | Included with Xcode Command Line Tools |
+| **ccusage** | Latest | Core Claude usage data provider |
+
+## 🐛 Troubleshooting Claude Usage Monitor
+
+<details>
+<summary>Common issues and solutions</summary>
+
+### ❌ "No data" displayed in menu bar
+
+**Cause**: CCUsage CLI not working properly
+
+**Solutions**:
+```bash
+# Check ccusage installation
+npm list -g ccusage
+
+# Test ccusage directly
+npx ccusage blocks --active --json
+
+# Reinstall if needed
+npm install -g ccusage@latest
+```
+
+### ❌ Monitor app won't start
+
+**Cause**: Swift or system requirements not met
+
+**Solutions**:
+```bash
+# Verify Swift installation
+swift --version
+
+# Install Xcode Command Line Tools if missing
+xcode-select --install
+
+# Try running directly
+cd ccusage-monitor && swift main.swift
+```
+
+### ❌ Auto-startup not working
+
+**Cause**: Launch Agent configuration issues
+
+**Solutions**:
+```bash
+# Check launch agent status
+launchctl list | grep ccusage
+
+# Reload launch agent
+launchctl unload ~/Library/LaunchAgents/com.ccusage.monitor.plist
+launchctl load ~/Library/LaunchAgents/com.ccusage.monitor.plist
+
+# Verify permissions
+ls -la ~/Library/LaunchAgents/com.ccusage.monitor.plist
+```
+
+</details>
+
+## 🏷️ SEO Keywords
+
+**Primary**: ccusage, Claude API usage, Claude reset time, macOS menu bar monitor
+**Secondary**: Claude token limits, Claude usage tracking, Claude API monitor, Anthropic API
+**Long-tail**: Claude Pro subscription monitoring, Claude billing cycle tracker, Claude usage dashboard macOS
+
+---
+
+## 📞 Support & Contributing
+
+### 🐛 Found an Issue?
+[Open an issue](https://github.com/joachimBrindeau/ccusage-monitor/issues/new) on GitHub with:
+- macOS version
+- ccusage version (`npm list -g ccusage`)
+- Error message or expected vs actual behavior
+
+### 🚀 Want to Contribute?
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### ⭐ Star This Repository
+If CCUsage Monitor helps you track your Claude API usage, please give it a star! ⭐
+
+---
+
+<div align="center">
+
+**Built with ❤️ for the Claude API community**
+
+[🏠 Homepage](https://github.com/joachimBrindeau/ccusage-monitor) • [📋 Issues](https://github.com/joachimBrindeau/ccusage-monitor/issues) • [🚀 Releases](https://github.com/joachimBrindeau/ccusage-monitor/releases)
+
+</div>

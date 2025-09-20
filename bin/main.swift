@@ -104,14 +104,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             case "usedPct": display.append("\(usage.usedPct)%")
             case "leftPct": display.append("\(usage.leftPct)% left")
             case "timeLeft": display.append("\(usage.remainingMinutes/60)h \(usage.remainingMinutes%60)m")
-            case "tokensSpent": display.append("\(usage.totalTokens)t")
-            case "tokensLeft": display.append("\(usage.tokensLeft)t left")
+            case "tokensSpent": display.append("\(formatTokens(usage.totalTokens))t")
+            case "tokensLeft": display.append("\(formatTokens(usage.tokensLeft))t left")
             case "moneySpent": display.append("$\(String(format: "%.2f", Double(usage.costCents)/100))")
             default: break
             }
         }
 
         return display
+    }
+
+    private func formatTokens(_ tokens: Int) -> String {
+        if tokens >= 1_000_000 {
+            return String(format: "%.1fM", Double(tokens) / 1_000_000)
+        } else if tokens >= 1_000 {
+            return String(format: "%.1fK", Double(tokens) / 1_000)
+        } else {
+            return "\(tokens)"
+        }
     }
 
     @objc private func toggleOption(_ sender: NSMenuItem) {

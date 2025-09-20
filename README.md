@@ -13,13 +13,14 @@ Built on the trusted [ccusage CLI tool](https://github.com/evanmschultz/ccusage)
 
 ## 🚀 Claude Usage Monitoring Made Simple
 
-Transform your **ccusage** terminal data into a persistent **menu bar indicator**:
+Transform your **ccusage** terminal data for your **current active billing block** into a persistent **menu bar indicator**:
 
-- ✅ **Real-time Claude API usage** percentage display
-- ⏰ **Claude reset time countdown** (hours and minutes remaining)
+- ✅ **Configurable display metrics** - choose what to show in menu bar
+- 📊 **Available metrics**: % used, % left, time left, tokens spent, tokens left, money spent
+- ⏰ **Current block tracking** - monitors your active Claude billing period
 - 🔄 **Auto-refresh every 30 seconds** - always current data
-- ⌨️ **Manual refresh** with `⌘R` hotkey
-- 🏃‍♂️ **Optional startup launch** - monitor from login
+- ⌨️ **Right-click menu** to toggle display options and refresh
+- 🏃‍♂️ **Auto-start on login** - enabled by default
 - 🪶 **Ultra-minimal** - just 46 lines of Swift code
 
 ## 📦 Installation - Claude API Usage Monitor Setup
@@ -91,9 +92,16 @@ launchctl unload ~/Library/LaunchAgents/com.ccusage.monitor.plist   # Disable au
 
 | Action | Shortcut | Function |
 |--------|----------|----------|
-| **Refresh Claude Data** | `⌘R` | Instantly update usage stats |
+| **Refresh Claude Data** | `⌘R` | Instantly update current block stats |
+| **Show % Used** | ✓/✗ | Toggle percentage of current block used |
+| **Show % Left** | ✓/✗ | Toggle percentage remaining in current block |
+| **Show Time Left** | ✓/✗ | Toggle time until current block resets |
+| **Show Tokens Spent** | ✓/✗ | Toggle tokens consumed in current block |
+| **Show Tokens Left** | ✓/✗ | Toggle tokens remaining in current block |
+| **Show Money Spent** | ✓/✗ | Toggle cost of current block usage |
 | **Quit Monitor** | `⌘Q` | Stop Claude usage tracking |
-| **Right-click** | Mouse | Access full menu options |
+
+**Default display**: `75% | 2h 15m` (% used and time left)
 
 ## 💡 Claude API Usage Monitoring Benefits
 
@@ -210,12 +218,6 @@ ls -la ~/Library/LaunchAgents/com.ccusage.monitor.plist
 ```
 
 </details>
-
-## 🏷️ SEO Keywords
-
-**Primary**: ccusage, Claude API usage, Claude reset time, macOS menu bar monitor
-**Secondary**: Claude token limits, Claude usage tracking, Claude API monitor, Anthropic API
-**Long-tail**: Claude Pro subscription monitoring, Claude billing cycle tracker, Claude usage dashboard macOS
 
 ---
 

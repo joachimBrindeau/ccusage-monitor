@@ -99,18 +99,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let costUsed = block["costUSD"] as? Double ?? 0.0
         let projectedCost = projection?["totalCost"] as? Double ?? 0.0
 
-        // Use ccusage's exact percentage calculation
+        // Get the limit from tokenLimitStatus
         let tokenLimitStatus = block["tokenLimitStatus"] as? [String: Any]
         let limit = tokenLimitStatus?["limit"] as? Int ?? totalTokens
-        let ccusagePercentUsed = tokenLimitStatus?["percentUsed"] as? Double ?? 0.0
 
         let totalBlockMinutes = 5 * 60 // 5 hours = 300 minutes
         let elapsedMinutes = totalBlockMinutes - remainingMinutes
 
-        // Use ccusage's percentUsed (which includes projection)
-        let usedPct = Int(ccusagePercentUsed.rounded())
+        // Calculate ACTUAL current usage percentage (not projected)
+        let actualPercentUsed = (Double(totalTokens) / Double(limit)) * 100.0
+        let usedPct = Int(actualPercentUsed.rounded())
         let leftPct = max(0, 100 - usedPct)
 
+        // Calculate tokens left based on limit
         let tokensLeft = max(0, limit - totalTokens)
         let costLeft = projectedCost - costUsed
 

@@ -31,9 +31,12 @@ Transform your **ccusage** terminal data for your **current active billing block
 ### 🍺 Homebrew Installation (Recommended)
 
 ```bash
-# One-command install for both ccusage and menu bar monitor
+# Method 1: Using Homebrew tap (preferred)
 brew tap joachimbrindeau/ccusage-monitor
 brew install ccusage-monitor
+
+# Method 2: Direct install script (if tap fails)
+curl -fsSL https://raw.githubusercontent.com/joachimBrindeau/ccusage-monitor/main/install.sh | bash
 
 # Launch the Claude usage monitor (auto-start enabled by default)
 ccusage-monitor

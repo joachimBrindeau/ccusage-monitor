@@ -37,36 +37,26 @@ INSTALL_DIR="/usr/local/bin/ccusage-monitor"
 echo "📁 Creating installation directory: $INSTALL_DIR"
 sudo mkdir -p "$INSTALL_DIR"
 
-# Download the main Swift files
+# Download the main Swift file
 echo "⬇️  Downloading CCUsage Monitor files..."
-curl -fsSL https://raw.githubusercontent.com/joachimBrindeau/ccusage-monitor/main/Sources/CCUsageMonitor/main.swift -o /tmp/ccusage-monitor-gui.swift
-curl -fsSL https://raw.githubusercontent.com/joachimBrindeau/ccusage-monitor/main/bin/main.swift -o /tmp/ccusage-monitor.swift
+curl -fsSL https://raw.githubusercontent.com/joachimBrindeau/ccusage-monitor/main/main.swift -o /tmp/ccusage-monitor.swift
 
-# Install the files
-sudo cp /tmp/ccusage-monitor-gui.swift "$INSTALL_DIR/main-gui.swift"
+# Install the file
 sudo cp /tmp/ccusage-monitor.swift "$INSTALL_DIR/main.swift"
 
-# Create executable wrapper scripts
-echo "🔧 Creating executable scripts..."
+# Create executable wrapper script
+echo "🔧 Creating executable script..."
 
-# GUI version wrapper
-sudo tee "$INSTALL_DIR/ccusage-monitor-gui" > /dev/null << 'EOF'
-#!/bin/bash
-exec swift "/usr/local/bin/ccusage-monitor/main-gui.swift" "$@"
-EOF
-
-# CLI version wrapper  
+# Main wrapper script
 sudo tee "$INSTALL_DIR/ccusage-monitor" > /dev/null << 'EOF'
 #!/bin/bash
 exec swift "/usr/local/bin/ccusage-monitor/main.swift" "$@"
 EOF
 
-# Make scripts executable
-sudo chmod +x "$INSTALL_DIR/ccusage-monitor-gui"
+# Make script executable
 sudo chmod +x "$INSTALL_DIR/ccusage-monitor"
 
-# Create symlinks in /usr/local/bin
-sudo ln -sf "$INSTALL_DIR/ccusage-monitor-gui" /usr/local/bin/ccusage-monitor-gui
+# Create symlink in /usr/local/bin
 sudo ln -sf "$INSTALL_DIR/ccusage-monitor" /usr/local/bin/ccusage-monitor
 
 # Set up auto-start for GUI version
@@ -83,7 +73,7 @@ cat > "$PLIST_PATH" << EOF
     <string>com.ccusage.monitor</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/local/bin/ccusage-monitor-gui</string>
+        <string>/usr/local/bin/ccusage-monitor</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
@@ -102,13 +92,12 @@ launchctl unload "$PLIST_PATH" 2>/dev/null || true
 launchctl load "$PLIST_PATH"
 
 # Clean up temp files
-rm -f /tmp/ccusage-monitor-gui.swift /tmp/ccusage-monitor.swift
+rm -f /tmp/ccusage-monitor.swift
 
 echo "✅ CCUsage Monitor installed successfully!"
 echo ""
 echo "🎯 Usage:"
-echo "  ccusage-monitor-gui    # Start GUI menu bar monitor"
-echo "  ccusage-monitor        # Run CLI version once"
+echo "  ccusage-monitor        # Start GUI menu bar monitor"
 echo ""
 echo "🔄 The GUI monitor is now running and will auto-start on login."
 echo "📊 Look for the usage percentage in your menu bar!"

@@ -59,8 +59,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func updateUsage() {
         let process = Process()
+
+        // Try to use CCUSAGE_PATH environment variable first, then fallback to npx
+        let ccusagePath = ProcessInfo.processInfo.environment["CCUSAGE_PATH"] ?? "npx"
+        let arguments = ccusagePath == "npx" ? ["npx", "ccusage"] : [ccusagePath]
+
         process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-        process.arguments = ["npx", "ccusage", "blocks", "--active", "--json", "--token-limit", "max"]
+        process.arguments = arguments + ["blocks", "--active", "--json", "--token-limit", "max"]
 
         let pipe = Pipe()
         process.standardOutput = pipe

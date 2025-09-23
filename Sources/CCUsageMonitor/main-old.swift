@@ -1,22 +1,31 @@
 import Cocoa
 
+struct DisplayOption {
+    let key: String
+    let title: String
+    let action: Selector
+    var enabled: Bool
+}
+
 struct UsageData {
     let usedPct: Int
     let leftPct: Int
     let remainingMinutes: Int
-    let elapsedMinutes: Int
     let totalTokens: Int
     let tokensLeft: Int
-    let costUsed: Double
-    let costLeft: Double
-    let resetTime: String
+    let costCents: Int
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
-    private var currentUsage: UsageData?
-    private var options = ["percentage": true, "timeLeft": true, "tokens": false, "money": false]
-    private var showUsed = true
+    private var options: [DisplayOption] = [
+        DisplayOption(key: "usedPct", title: "Show % Used", action: #selector(toggleOption), enabled: true),
+        DisplayOption(key: "leftPct", title: "Show % Left", action: #selector(toggleOption), enabled: false),
+        DisplayOption(key: "timeLeft", title: "Show Time Left", action: #selector(toggleOption), enabled: true),
+        DisplayOption(key: "tokensSpent", title: "Show Tokens Spent", action: #selector(toggleOption), enabled: false),
+        DisplayOption(key: "tokensLeft", title: "Show Tokens Left", action: #selector(toggleOption), enabled: false),
+        DisplayOption(key: "moneySpent", title: "Show Money Spent", action: #selector(toggleOption), enabled: false)
+    ]
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -28,29 +37,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func buildMenu() {
         let menu = NSMenu()
-
-        if let usage = currentUsage {
-            let resetItem = NSMenuItem(title: "Next reset: \(usage.resetTime)", action: nil, keyEquivalent: "")
-            resetItem.isEnabled = false
-            menu.addItem(resetItem)
-            menu.addItem(.separator())
-        }
-
         menu.addItem(NSMenuItem(title: "Refresh", action: #selector(updateUsage), keyEquivalent: "r"))
         menu.addItem(.separator())
 
-        for (index, (key, enabled)) in options.enumerated() {
-            let titles = ["percentage": "Show Percentage", "timeLeft": "Show Time", "tokens": "Show Tokens", "money": "Show Money"]
-            let item = NSMenuItem(title: titles[key]!, action: #selector(toggleOption(_:)), keyEquivalent: "")
-            item.state = enabled ? .on : .off
+        for (index, option) in options.enumerated() {
+            let item = NSMenuItem(title: option.title, action: #selector(toggleOption(_:)), keyEquivalent: "")
+            item.state = option.enabled ? .on : .off
             item.tag = index
-            if key == "money" && !showUsed { item.isEnabled = false; item.action = nil; item.state = .off }
             menu.addItem(item)
         }
-
-        menu.addItem(.separator())
-        let usedLeftItem = NSMenuItem(title: showUsed ? "Show left instead of used" : "Show used instead of left", action: #selector(toggleUsedLeft), keyEquivalent: "")
-        menu.addItem(usedLeftItem)
 
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
@@ -85,9 +80,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let display = buildDisplayString(from: usage)
 
         DispatchQueue.main.async {
-            self.currentUsage = usage
             self.statusItem.button?.title = display.isEmpty ? "No metrics" : display.joined(separator: " | ")
-            self.buildMenu()
         }
     }
 
@@ -96,15 +89,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let projection = block["projection"] as? [String: Any]
         let projectedTotal = projection?["totalTokens"] as? Int ?? totalTokens
         let remainingMinutes = projection?["remainingMinutes"] as? Int ?? 0
-        let costUsed = block["costUSD"] as? Double ?? 0.0
-        let projectedCost = projection?["totalCost"] as? Double ?? 0.0
+        let costCents = block["costCents"] as? Int ?? 0
 
         // Calculate percentage exactly like ccusage does
         let tokenLimitStatus = block["tokenLimitStatus"] as? [String: Any]
         let limit = tokenLimitStatus?["limit"] as? Int ?? totalTokens
-
-        let totalBlockMinutes = 5 * 60 // 5 hours = 300 minutes
-        let elapsedMinutes = totalBlockMinutes - remainingMinutes
 
         // Used percentage: (currentTokens / limit) * 100
         let usedPct = limit > 0 ? Int(((Double(totalTokens) / Double(limit)) * 100).rounded()) : 0
@@ -112,40 +101,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Remaining percentage: ((limit - currentTokens) / limit) * 100
         let leftPct = limit > 0 ? Int((((Double(limit) - Double(totalTokens)) / Double(limit)) * 100).rounded()) : 100
 
-        let tokensLeft = max(0, limit - totalTokens)
-        let costLeft = projectedCost - costUsed
-
         return UsageData(
             usedPct: usedPct,
             leftPct: leftPct,
             remainingMinutes: remainingMinutes,
-            elapsedMinutes: elapsedMinutes,
             totalTokens: totalTokens,
-            tokensLeft: tokensLeft,
-            costUsed: costUsed,
-            costLeft: costLeft,
-            resetTime: formatResetTime(remainingMinutes: remainingMinutes)
+            tokensLeft: max(0, limit - totalTokens),
+            costCents: costCents
         )
-    }
-
-    private func formatResetTime(remainingMinutes: Int) -> String {
-        let now = Date()
-        let resetDate = Calendar.current.date(byAdding: .minute, value: remainingMinutes, to: now)!
-
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, h:mm a"
-        return formatter.string(from: resetDate)
     }
 
     private func buildDisplayString(from usage: UsageData) -> [String] {
         var display: [String] = []
 
-        for (key, enabled) in options where enabled {
-            switch key {
-            case "percentage": display.append("\(showUsed ? usage.usedPct : usage.leftPct)%")
-            case "timeLeft": display.append("\((showUsed ? usage.elapsedMinutes : usage.remainingMinutes)/60)h \((showUsed ? usage.elapsedMinutes : usage.remainingMinutes)%60)m")
-            case "tokens": display.append("\(formatTokens(showUsed ? usage.totalTokens : usage.tokensLeft))t")
-            case "money": if showUsed { display.append("$\(String(format: "%.2f", usage.costUsed))") }
+        for option in options where option.enabled {
+            switch option.key {
+            case "usedPct": display.append("\(usage.usedPct)%")
+            case "leftPct": display.append("\(usage.leftPct)% left")
+            case "timeLeft": display.append("\(usage.remainingMinutes/60)h \(usage.remainingMinutes%60)m")
+            case "tokensSpent": display.append("\(formatTokens(usage.totalTokens))t")
+            case "tokensLeft": display.append("\(formatTokens(usage.tokensLeft))t left")
+            case "moneySpent": display.append("$\(String(format: "%.2f", Double(usage.costCents)/100))")
             default: break
             }
         }
@@ -164,25 +140,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func toggleOption(_ sender: NSMenuItem) {
-        let key = Array(options.keys)[sender.tag]
-        if key == "money" && !showUsed { return }
-        options[key]!.toggle()
-        refreshUI()
-    }
-
-    @objc private func toggleUsedLeft() {
-        showUsed.toggle()
-
-        if !showUsed { options["money"] = false }
-
-        refreshUI()
-    }
-
-    private func refreshUI() {
+        options[sender.tag].enabled.toggle()
         buildMenu()
-        DispatchQueue.main.async {
-            self.statusItem.button?.title = "..."
-        }
         updateUsage()
     }
 

@@ -55,7 +55,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func updateUsage() {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-        process.arguments = ["npx", "ccusage", "blocks", "--active", "--json"]
+        process.arguments = ["npx", "ccusage", "blocks", "--active", "--json", "--token-limit", "max"]
 
         let pipe = Pipe()
         process.standardOutput = pipe
@@ -86,12 +86,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let remainingMinutes = projection?["remainingMinutes"] as? Int ?? 0
         let costCents = block["costCents"] as? Int ?? 0
 
+        // Calculate percentage exactly like ccusage does
+        let tokenLimitStatus = block["tokenLimitStatus"] as? [String: Any]
+        let limit = tokenLimitStatus?["limit"] as? Int ?? totalTokens
+
+        // Used percentage: (currentTokens / limit) * 100
+        let usedPct = limit > 0 ? Int(((Double(totalTokens) / Double(limit)) * 100).rounded()) : 0
+
+        // Remaining percentage: ((limit - currentTokens) / limit) * 100
+        let leftPct = limit > 0 ? Int((((Double(limit) - Double(totalTokens)) / Double(limit)) * 100).rounded()) : 100
+
         return UsageData(
-            usedPct: totalTokens * 100 / projectedTotal,
-            leftPct: 100 - (totalTokens * 100 / projectedTotal),
+            usedPct: usedPct,
+            leftPct: leftPct,
             remainingMinutes: remainingMinutes,
             totalTokens: totalTokens,
-            tokensLeft: projectedTotal - totalTokens,
+            tokensLeft: max(0, limit - totalTokens),
             costCents: costCents
         )
     }
